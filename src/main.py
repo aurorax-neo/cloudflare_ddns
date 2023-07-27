@@ -20,6 +20,7 @@ def update_dns(i):
         with logPPP_lock:
             logPPP.warning('CFDDNS', i.get('dns_name'), '未找到域名记录')
         return
+    ip = None
     if str.lower(i.get('ip_type')).strip() == 'ipv4':
         ip = cfddns.get_ipv4()
     elif str.lower(i.get('ip_type')).strip() == 'ipv6':
