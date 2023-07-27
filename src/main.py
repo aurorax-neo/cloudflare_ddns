@@ -1,4 +1,5 @@
 import functools
+import os
 import threading
 
 import confutilPPP
@@ -36,6 +37,12 @@ def update_dns(i):
             logPPP.info('CFDDNS', i.get('dns_name'), 'IP地址更新成功')
 
 
+def OUTPUT_PID():
+    pid = os.getpid()
+    with open(os.path.join(os.getcwd(), 'PID.txt'), 'w') as f:
+        f.write(str(pid))
+
+
 def DDNS(_conf):
     # 创建定时任务调度器
     scheduler = BackgroundScheduler()
@@ -44,10 +51,10 @@ def DDNS(_conf):
     for i in _conf:
         task = functools.partial(update_dns, i)
         scheduler.add_job(task, 'interval', seconds=i.get('interval'), max_instances=10)
-
+    scheduler.start()
+    OUTPUT_PID()
+    logPPP.info("cloudflare DDNS 服务已启动")
     try:
-        scheduler.start()
-        logPPP.info("cloudflare DDNS 服务已启动")
         while True:
             pass
     except KeyboardInterrupt:

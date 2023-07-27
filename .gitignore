@@ -254,3 +254,7 @@ cython_debug/
 
 /src/config.yml
 /src/config.yaml
+!/bin/
+/src/PID.txt
+/bin/log/
+/bin/config/
