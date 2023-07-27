@@ -56,7 +56,7 @@ class DDNS:
     @staticmethod
     def get_ipv6():
         try:
-            resp = requests.get('http://v6.ipv6-test.com/api/myip.php')
+            resp = requests.get('https://ipv6.icanhazip.com/')
         except Exception as e:
             logPPP.error('get_ipv6', e)
             return None
@@ -66,7 +66,7 @@ class DDNS:
     @staticmethod
     def get_ipv4():
         try:
-            resp = requests.get('http://v4.ipv6-test.com/api/myip.php')
+            resp = requests.get('https://ipv4.icanhazip.com/')
         except Exception as e:
             logPPP.error('get_ipv4', e)
             return None
