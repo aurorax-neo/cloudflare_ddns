@@ -2,14 +2,14 @@
 
 # 设置Python脚本路径和日志文件路径
 SCRIPT_PATH="../src/main.py"
-LOG_FILE="log.txt"
+LOG_FILE="log/log.txt"
 
 cd "$(dirname "$0")"
 start() {
-  mkdir -p log 2>nul
-  mkdir -p config 2>nul
+  mkdir -p log 2>/dev/null
+  mkdir -p config 2>/dev/null
   echo "Starting the cloudflare_ddns..."
-  nohup python3 -u "$SCRIPT_PATH" >>"$LOG_FILE" 2>&1 &
+  nohup python3 -u "$SCRIPT_PATH" --configpath ./config/config.yml >>"$LOG_FILE" 2>&1 &
   echo "cloudflare_ddns started."
 }
 

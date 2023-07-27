@@ -258,3 +258,4 @@ cython_debug/
 /src/PID.txt
 /bin/log/
 /bin/config/
+/bin/PID.txt
