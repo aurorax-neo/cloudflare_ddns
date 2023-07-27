@@ -43,7 +43,7 @@ def DDNS(_conf):
     # 添加定时任务，指定使用线程池执行
     for i in _conf:
         task = functools.partial(update_dns, i)
-        scheduler.add_job(task, 'interval', seconds=3, max_instances=10)
+        scheduler.add_job(task, 'interval', seconds=i.get('interval'), max_instances=10)
 
     try:
         scheduler.start()
