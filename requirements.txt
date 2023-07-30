@@ -1,4 +1,4 @@
 APScheduler==3.10.1
-confutilPPP==1.0.3
-logPPP==1.1.1
+confutilPPP==1.1.2
+logPPP==1.1.2
 Requests==2.31.0

@@ -7,7 +7,7 @@
 ### 1. 克隆该项目到本地：
 
 ```
-git clone https://github.com/your_username/cloudflare-ddns.git
+git clone https://github.com/Aurorax-own/cloudflare_ddns.git
 ```
 
 ### 2. 安装所需依赖：
@@ -18,12 +18,16 @@ pip install -r requirements.txt
 
 ### 3. 配置 Cloudflare API Token 和其他选项：
 ```
-- interval: 180  #更新 IP 地址的间隔（单位：秒）
-  api_token:     #Cloudflare API Token
-  zone_id:       #Cloudflare Zone ID
-  dns_name:      #需要更新的域名
-  ip_type:       #IP 地址类型（ipv4 或 ipv6）
-  proxied: true  #是否启用 Cloudflare 的代理（True 或 False）
+- interval: 180		#更新 IP 地址的间隔（单位：秒）
+  api_token: 		#Cloudflare API Token
+  zone_id: 			#Cloudflare Zone ID
+  dns_records:
+    - dns_name: 	#需要更新的域名
+      ip_type: ipv6	#IP 地址类型（ipv4 或 ipv6）
+      proxied: true	#是否启用 Cloudflare 的代理（True 或 False）
+    - dns_name: ***
+      ip_type: ***
+      proxied: ***
 ```
 ### 4. 启动 Cloudflare DDNS 服务
 
