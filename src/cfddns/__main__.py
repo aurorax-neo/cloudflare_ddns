@@ -86,10 +86,11 @@ class DDNS:
                 logPPP.debug('CFDDNS', i.get('dns_name'), 'IP地址未发生变化')
             return 3
         try:
-            if RETRY_CALLBACK(self._update_dns_record, record.get('id', 'None'), i.get('dns_name', 'None'),
-                              record.get('type', 'None'),
-                              ip,
-                              i.get('proxied', True)):
+            if RETRY_CALLBACK(self._update_dns_record, _record_id=record.get('id', 'None'),
+                              _dns_name=i.get('dns_name', 'None'),
+                              _rerecord_type=record.get('type', 'None'),
+                              _record_content=ip,
+                              _proxied=i.get('proxied', True)):
                 # 更新record的content
                 record['content'] = ip
                 # 更新record的proxied
