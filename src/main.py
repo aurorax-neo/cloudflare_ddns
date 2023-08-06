@@ -21,7 +21,7 @@ if __name__ == '__main__':
     config = confutilPPP.check_config(CONFIG)
     if config is not None:
         for i in config:
-            ddns = cfddns.DDNS(i).create_job()
+            cfddns.DDNS(i).create_job()
         cfddns.DDNS.run()
     else:
         logPPP.error('CFDDNS', '配置文件错误')
