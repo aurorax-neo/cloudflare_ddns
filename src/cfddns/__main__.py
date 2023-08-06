@@ -109,7 +109,7 @@ class DDNS:
     @staticmethod
     def get_ipv6():
         try:
-            resp = requests.get('https://api6.ipify.org/')
+            resp = requests.get('https://ipv6.icanhazip.com/')
         except Exception as e:
             logPPP.error('get_ipv6', e)
             return None
@@ -119,7 +119,7 @@ class DDNS:
     @staticmethod
     def get_ipv4():
         try:
-            resp = requests.get('https://api4.ipify.org/')
+            resp = requests.get('https://ipv4.icanhazip.com/')
         except Exception as e:
             logPPP.error('get_ipv4', e)
             return None
