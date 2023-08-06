@@ -1,6 +1,6 @@
 CONFIG = [
     {
-        'interval': 180,
+        'interval': 30,
         'api_token': 'your_api_token',
         'zone_id': 'your_zone_id',
         'dns_records': [{

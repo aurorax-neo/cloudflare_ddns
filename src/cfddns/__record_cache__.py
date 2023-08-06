@@ -23,26 +23,28 @@ class records_cache:
                         'Authorization': 'Bearer ' + self.api_token,
                         'Content-Type': 'application/json'
                     })
+                if resp.status_code == 200:
+                    # 如果请求失败，抛出异常
+                    if not json.loads(resp.text).get('success'):
+                        err_str = resp.text.replace('\n', '').replace('\r', '').strip()
+                        logPPP.debug('get_record', err_str)
+                        raise Exception(err_str)
+                    # 如果请求成功，获取result
+                    domains = json.loads(resp.text).get('result')
+                    dns_name = i.get('dns_name')
+                    ip_type = str.lower(i.get('ip_type'))
+                    record_type = None
+                    if ip_type == 'ipv4':
+                        record_type = 'A'
+                    elif ip_type == 'ipv6':
+                        record_type = 'AAAA'
+                    for domain in domains:
+                        if dns_name == domain.get('name') and record_type == domain.get('type'):
+                            self.update_records_cache(dns_name + ip_type, domain)
+                            break
             except Exception as e:
-                logPPP.error('get_record', e)
-                return None
-
-            if not json.loads(resp.text).get('success'):
-                logPPP.warning('get_record', resp.text)
-                return None
-            domains = json.loads(resp.text).get('result')
-
-            dns_name = i.get('dns_name')
-            ip_type = str.lower(i.get('ip_type'))
-            record_type = None
-            if ip_type == 'ipv4':
-                record_type = 'A'
-            elif ip_type == 'ipv6':
-                record_type = 'AAAA'
-            for domain in domains:
-                if dns_name == domain.get('name') and record_type == domain.get('type'):
-                    self.update_records_cache(dns_name + ip_type, domain)
-                    break
+                logPPP.debug('init_records_cache', e)
+                raise e
 
     # 获取缓存
     @classmethod
