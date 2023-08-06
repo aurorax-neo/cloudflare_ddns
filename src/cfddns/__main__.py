@@ -8,6 +8,7 @@ import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from .__record_cache__ import records_cache
+from .__util__ import RETRY_CALLBACK
 
 
 class DDNS:
@@ -15,6 +16,10 @@ class DDNS:
     _LOCK = threading.Lock()
     # 创建定时任务调度器
     _SCHEDULER = BackgroundScheduler()
+    # 任务的最大并发数
+    _MAX_WORKERS = 1000
+    # 初始化参数List
+    _INIT_PARAMS = []
 
     def __init__(self, _conf: dict):
         self.interval = _conf['interval']
@@ -25,10 +30,8 @@ class DDNS:
         self._init()
 
     def _init(self):
-        # 初始化提示
-        logPPP.info('CFDDNS', '服务正在初始化, 请稍后...')
-        cache = records_cache(self.api_token, self.zone_id, self.dns_records)
-        cache.init_records_cache()
+        args = (self.api_token, self.zone_id, self.dns_records)
+        DDNS._INIT_PARAMS.append(args)
 
     def _update_dns_record(self, _record_id, _dns_name, _rerecord_type, _record_content, _proxied=True):
         try:
@@ -47,40 +50,43 @@ class DDNS:
                 })
         except Exception as e:
             with DDNS._LOCK:
-                logPPP.error('update_dns_record', e)
-            return False
+                logPPP.debug('update_dns_record', e)
+                return False
         if not json.loads(resp.text).get('success'):
             with DDNS._LOCK:
-                logPPP.warning('update_dns_record', resp.text)
-            return False
+                err_str = resp.text.replace('\n', '').replace('\r', '').strip()
+                logPPP.debug('update_dns_record', err_str)
+                return False
         return True
 
     def update_dns(self, i):
-        ip = None
-        if str.lower(i.get('ip_type')).strip() == 'ipv4':
-            ip = DDNS.get_ipv4()
-        elif str.lower(i.get('ip_type')).strip() == 'ipv6':
-            ip = DDNS.get_ipv6()
-        if ip is None or ip == '':
+        ip = 'None'
+        try:
+            if str.lower(i.get('ip_type')).strip() == 'ipv4':
+                ip = RETRY_CALLBACK(DDNS.get_ipv4)
+            elif str.lower(i.get('ip_type')).strip() == 'ipv6':
+                ip = RETRY_CALLBACK(DDNS.get_ipv6)
+        except Exception:
             with DDNS._LOCK:
                 logPPP.warning('CFDDNS', '获取本机IP地址失败')
-            return
+                return 1
         # 获取缓存
         record_key = i.get('dns_name') + str.lower(i.get('ip_type'))
         record = records_cache.get_record_by_key(record_key)
         if record is None:
             with DDNS._LOCK:
                 logPPP.warning('CFDDNS', i.get('dns_name'), '未找到域名记录')
-            return
+                return 2
         if record.get('content') == ip:
             with DDNS._LOCK:
-                logPPP.info('CFDDNS', i.get('dns_name'), 'IP地址未发生变化')
-            return
-        if self._update_dns_record(record.get('id'), i.get('dns_name'), record.get('type'), ip, i.get('proxied')):
+                logPPP.debug('CFDDNS', i.get('dns_name'), 'IP地址未发生变化')
+                return 3
+        if self._update_dns_record(record.get('id', 'None'), i.get('dns_name', 'None'), record.get('type', 'None'), ip,
+                                   i.get('proxied', True)):
             # 更新record的content
             record['content'] = ip
             # 更新record的proxied
-            record['proxied'] = i.get('proxied')
+            record['proxied'] = i.get('proxied', True)
             # 更新缓存
             records_cache.update_records_cache(record_key, record)
             with DDNS._LOCK:
@@ -90,12 +96,26 @@ class DDNS:
     def create_job(self):
         # 添加定时任务，指定使用线程池执行
         for i in self.dns_records:
+            DDNS._MAX_WORKERS += 1
             task = functools.partial(self.update_dns, i)
-            DDNS._SCHEDULER.add_job(task, 'interval', seconds=self.interval, max_instances=self.dns_records.__len__())
+            DDNS._SCHEDULER.add_job(task, 'interval', seconds=self.interval, max_instances=DDNS._MAX_WORKERS)
 
     # 启动定时任务
     @classmethod
     def run(cls):
+        # 初始化提示
+        logPPP.info('CFDDNS', '服务正在初始化, 请稍后...')
+        # 初始化缓存
+        try:
+            for i in cls._INIT_PARAMS:
+                cache = records_cache(i[0], i[1], i[2])
+                RETRY_CALLBACK(cache.init_records_cache)
+        except Exception as e:
+            logPPP.error('CFDDNS', '缓存初始化失败', e)
+            raise e
+        logPPP.info('CFDDNS', '服务初始化完成')
+
+        # 启动定时任务
         cls._SCHEDULER.start()
         logPPP.info("cloudflare DDNS 服务已启动")
         try:
@@ -108,19 +128,21 @@ class DDNS:
     # 获取本机IPV6地址
     @staticmethod
     def get_ipv6():
-        try:
-            resp = requests.get('https://ipv6.icanhazip.com/')
-        except Exception as e:
-            logPPP.error('get_ipv6', e)
-            return None
-        return resp.text.strip()
+        resp = requests.get('https://api6.ipify.org/')
+        if resp.status_code == 200:
+            return resp.text.strip()
+        else:
+            err_str = resp.text.replace('\n', '').replace('\r', '').strip()
+            logPPP.debug('get_ipv6', err_str)
+            raise Exception(err_str)
 
     # 获取本机IPV4地址
     @staticmethod
     def get_ipv4():
-        try:
-            resp = requests.get('https://ipv4.icanhazip.com/')
-        except Exception as e:
-            logPPP.error('get_ipv4', e)
-            return None
-        return resp.text.strip()
+        resp = requests.get('https://api4.ipify.org/')
+        if resp.status_code == 200:
+            return resp.text.strip()
+        else:
+            err_str = resp.text.replace('\n', '').replace('\r', '').strip()
+            logPPP.debug('get_ipv4', err_str)
+            raise Exception(err_str)

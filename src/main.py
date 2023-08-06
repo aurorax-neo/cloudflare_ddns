@@ -1,4 +1,5 @@
 import os
+import sys
 
 import confutilPPP
 import logPPP
@@ -25,4 +26,4 @@ if __name__ == '__main__':
         cfddns.DDNS.run()
     else:
         logPPP.error('CFDDNS', '配置文件错误')
-        exit(1)
+        sys.exit(1)

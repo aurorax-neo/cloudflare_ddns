@@ -17,6 +17,7 @@ pip install -r requirements.txt
 ```
 
 ### 3. 配置 Cloudflare API Token 和其他选项：
+
 ```
 - interval: 180		#更新 IP 地址的间隔（单位：秒）
   api_token: 		#Cloudflare API Token
@@ -29,6 +30,7 @@ pip install -r requirements.txt
       ip_type: ***
       proxied: ***
 ```
+
 ### 4. 启动 Cloudflare DDNS 服务
 
 ###### 注：第4、5、6步命令根据平台选择不同的脚本

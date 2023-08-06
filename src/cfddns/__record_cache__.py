@@ -42,6 +42,7 @@ class records_cache:
             for domain in domains:
                 if dns_name == domain.get('name') and record_type == domain.get('type'):
                     self.update_records_cache(dns_name + ip_type, domain)
+                    break
 
     # 获取缓存
     @classmethod
