@@ -3,7 +3,7 @@ import threading
 
 import requests
 
-from src.lib import logPPP
+from .lib import logPPP
 
 
 class records_cache:

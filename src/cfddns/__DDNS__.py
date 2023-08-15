@@ -8,9 +8,9 @@ import time
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from src.lib import logPPP
 from .__record_cache__ import records_cache
 from .__util__ import RETRY_CALLBACK
+from .lib import logPPP
 
 
 class DDNS:

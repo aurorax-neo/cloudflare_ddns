@@ -259,3 +259,4 @@ cython_debug/
 /bin/log/
 /bin/config/
 /bin/PID.txt
+!/src/cfddns/lib/

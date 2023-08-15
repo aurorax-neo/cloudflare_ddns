@@ -3,8 +3,7 @@ import sys
 
 import cfddns
 from cfddns import CONFIG
-from src.lib import confutilPPP
-from src.lib import logPPP
+from src.cfddns.lib import logPPP, confutilPPP
 
 
 def OUTPUT_PID():
