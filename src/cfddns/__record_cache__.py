@@ -1,33 +1,34 @@
 import json
 import threading
 
-import logPPP
 import requests
+
+from src.lib import logPPP
 
 
 class records_cache:
     _RECORDS = {}
     _LOCK = threading.Lock()
 
-    def __init__(self, api_token, zone_id, dns_records):
-        self.api_token = api_token
-        self.zone_id = zone_id
-        self.dns_records = dns_records
+    def __init__(self):
+        # 禁用实例化
+        raise Exception('禁止实例化')
 
-    def init_records_cache(self):
-        for i in self.dns_records:
+    @staticmethod
+    def init_records_cache(_api_token, _zone_id, _dns_records):
+        for i in _dns_records:
             try:
                 resp = requests.get(
-                    'https://api.cloudflare.com/client/v4/zones/{}/dns_records'.format(self.zone_id),
+                    'https://api.cloudflare.com/client/v4/zones/{}/dns_records'.format(_zone_id),
                     headers={
-                        'Authorization': 'Bearer ' + self.api_token,
+                        'Authorization': 'Bearer ' + _api_token,
                         'Content-Type': 'application/json'
                     })
                 if resp.status_code == 200:
                     # 如果请求失败，抛出异常
                     if not json.loads(resp.text).get('success'):
                         err_str = resp.text.replace('\n', '').replace('\r', '').strip()
-                        logPPP.debug('get_record', err_str)
+                        logPPP.logger.debug('{} {}'.format('get_record', err_str))
                         raise Exception(err_str)
                     # 如果请求成功，获取result
                     domains = json.loads(resp.text).get('result')
@@ -40,10 +41,10 @@ class records_cache:
                         record_type = 'AAAA'
                     for domain in domains:
                         if dns_name == domain.get('name') and record_type == domain.get('type'):
-                            self.update_records_cache(dns_name + ip_type, domain)
+                            records_cache.update_records_cache(dns_name + ip_type, domain)
                             break
             except Exception as e:
-                logPPP.debug('init_records_cache', e)
+                logPPP.logger.debug('{} {}'.format('update_records_cache', e))
                 raise e
 
     # 获取缓存

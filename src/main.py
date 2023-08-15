@@ -1,11 +1,10 @@
 import os
 import sys
 
-import confutilPPP
-import logPPP
-
 import cfddns
 from cfddns import CONFIG
+from src.lib import confutilPPP
+from src.lib import logPPP
 
 
 def OUTPUT_PID():
@@ -25,5 +24,5 @@ if __name__ == '__main__':
             cfddns.DDNS(i).create_job()
         cfddns.DDNS.run()
     else:
-        logPPP.error('CFDDNS', '配置文件错误')
+        logPPP.error('{} {}'.format('CFDDNS', '配置文件错误'))
         sys.exit(1)
