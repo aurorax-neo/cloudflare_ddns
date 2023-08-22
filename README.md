@@ -13,6 +13,8 @@ git clone https://github.com/Aurorax-own/cloudflare_ddns.git
 ### 2. 安装所需依赖：
 
 ```
+pip install pipenv
+pipenv requirements > requirements.txt
 pip install -r requirements.txt
 ```
 
