@@ -83,7 +83,7 @@ class DDNS:
             return 2
         if record.get('content') == ip:
             with DDNS._LOCK:
-                logger.info('{} - {} {}'.format(i.get('dns_name'), ip, '地址未发生改变'))
+                logger.debug('{} - {} {}'.format(i.get('dns_name'), ip, '地址未发生改变'))
             return 3
         try:
             if RETRY_CALLBACK(self._update_dns_record, _record_id=record.get('id', 'None'),
