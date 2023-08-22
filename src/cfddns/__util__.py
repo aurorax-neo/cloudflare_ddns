@@ -1,5 +1,7 @@
 import time
 
+import logPPP
+
 
 # 重试回调函数
 def RETRY_CALLBACK(_callback_func, _max_retries=3, _retry_interval=3, *args, **kwargs):
@@ -13,3 +15,6 @@ def RETRY_CALLBACK(_callback_func, _max_retries=3, _retry_interval=3, *args, **k
                 time.sleep(_retry_interval)
             else:
                 raise e_
+
+
+logger = logPPP.get_logger()

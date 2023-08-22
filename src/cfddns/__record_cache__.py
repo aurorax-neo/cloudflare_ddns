@@ -3,7 +3,7 @@ import threading
 
 import requests
 
-from .lib import logPPP
+from .__util__ import logger
 
 
 class records_cache:
@@ -28,7 +28,7 @@ class records_cache:
                     # 如果请求失败，抛出异常
                     if not json.loads(resp.text).get('success'):
                         err_str = resp.text.replace('\n', '').replace('\r', '').strip()
-                        logPPP.logger.debug('{} {}'.format('get_record', err_str))
+                        logger.logger.debug('{} {}'.format('get_record', err_str))
                         raise Exception(err_str)
                     # 如果请求成功，获取result
                     domains = json.loads(resp.text).get('result')
@@ -44,7 +44,7 @@ class records_cache:
                             records_cache.update_records_cache(dns_name + ip_type, domain)
                             break
             except Exception as e:
-                logPPP.logger.debug('{} {}'.format('update_records_cache', e))
+                logger.logger.debug('{} {}'.format('update_records_cache', e))
                 raise e
 
     # 获取缓存
